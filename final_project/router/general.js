@@ -8,7 +8,8 @@ const public_users = express.Router();
 public_users.post("/register", (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
-  const filtered_user = users.find((user) => user == username);
+  console.log(users);
+  const filtered_user = users.find((user) => user?.username == username);
   let message = '';
   if(!filtered_user) {
     users.push({ username: username, password: password });
