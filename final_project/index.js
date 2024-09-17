@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const JWT_SECRET = "risiko123";
 const session = require('express-session')
 const customer_routes = require('./router/auth_users.js').authenticated;
 const genl_routes = require('./router/general.js').general;
@@ -9,9 +10,21 @@ const app = express();
 app.use(express.json());
 
 app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
-
+//used to check all sub routes under /auth/*
 app.use("/customer/auth/*", function auth(req,res,next){
-//Write the authenication mechanism here
+    if (req.session.authorization) { // Get the authorization object stored in the session
+        token = req.session.authorization['accessToken']; // Retrieve the token from authorization object
+        jwt.verify(token, "access", (err, user) => { // Use JWT to verify token
+          if (!err) {
+            req.user = user;
+            next();
+          } else {
+            return res.status(403).json({ message: "User not authenticated" });
+          }
+        });
+      } else {
+        return res.status(403).json({ message: "User not logged in" });
+      }
 });
  
 const PORT =5000;
